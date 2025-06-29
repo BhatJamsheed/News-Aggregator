@@ -1,0 +1,315 @@
+/* Light mode (default) */
+body {
+    background: #f8f9fa;
+    color: #222;
+    font-family: 'Roboto', sans-serif;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Dark mode */
+body.dark-mode {
+    background: #181a1b !important;
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode .navbar, body.dark-mode .card, body.dark-mode .modal-content {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode .btn, body.dark-mode .form-control {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode a, body.dark-mode a:visited {
+    color: #90caf9 !important;
+}
+
+body.dark-mode .dropdown-menu {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode .table {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode input, body.dark-mode textarea {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode hr {
+    border-color: #444 !important;
+}
+
+.content-section, .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: none;
+}
+
+.navbar {
+    font-size: 1.1rem;
+}
+
+.nav-link, .navbar-brand {
+    color: #0d6efd !important;
+    font-weight: 500;
+}
+
+.nav-link.active, .nav-link:hover {
+    color: #0a58ca !important;
+}
+
+.btn-primary, .btn-outline-primary {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.card-title, .article-title {
+    color: #0d6efd;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.card-text, .article-content {
+    color: #444;
+    font-size: 1rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #0d6efd;
+}
+
+.alert {
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+footer {
+    font-size: 1rem;
+    color: #888;
+}
+
+@media (max-width: 768px) {
+    .content-section, .card {
+        padding: 1rem;
+    }
+    .navbar-brand span {
+        font-size: 1.1rem;
+    }
+}
+
+.body{
+background-color:#fafafa;
+color:#333333;
+margin-top:5rem;
+}
+.right{
+margin-left:auto;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:left;
+}
+th{
+background-color:#f0f0f0;
+}
+table{
+table-layout:fixed;
+width:100%;
+}
+
+td{
+word-wrap:break-word;
+}
+
+.btn{
+padding:10px;
+margin:20px;
+}
+
+.news-height{
+height:400px;
+font-weight:bold;
+}
+
+a.article-title:hover {
+  color: #428bca;
+  text-decoration: none;
+}
+
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+}
+
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+  color: #333;
+  text-decoration: none;
+}
+
+/* Force dark backgrounds for main content containers in dark mode */
+body.dark-mode .news-section-bg,
+body.dark-mode .personalise-card,
+body.dark-mode .news-card,
+body.dark-mode .banner-section,
+body.dark-mode .rounded-4,
+body.dark-mode .card,
+body.dark-mode .container,
+body.dark-mode .p-3,
+body.dark-mode .py-4,
+body.dark-mode .mb-4,
+body.dark-mode .sticky-heading {
+    background: linear-gradient(135deg, #23272b 80%, #181a1b 100%) !important;
+    color: #f1f1f1 !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.28) !important;
+    border: 1px solid #23272b !important;
+}
+body.dark-mode .card,
+body.dark-mode .news-card {
+    border-radius: 18px !important;
+    border: 1px solid #333 !important;
+}
+body.dark-mode .card-body {
+    background: transparent !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+}
+body.dark-mode .card:hover,
+body.dark-mode .news-card:hover {
+    box-shadow: 0 6px 32px rgba(144,202,249,0.10) !important;
+    border-color: #90caf9 !important;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+body.dark-mode .btn,
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-danger,
+body.dark-mode .btn-outline-success,
+body.dark-mode .btn-outline-warning {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+    border-color: #444 !important;
+    box-shadow: 0 2px 8px rgba(144,202,249,0.08) !important;
+}
+body.dark-mode .btn:hover,
+body.dark-mode .btn:focus {
+    background: #90caf9 !important;
+    color: #23272b !important;
+    border-color: #90caf9 !important;
+}
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background: #23272b !important;
+    color: #f1f1f1 !important;
+    border: 1px solid #444 !important;
+    box-shadow: 0 1px 4px rgba(144,202,249,0.08) !important;
+}
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    border-color: #90caf9 !important;
+    box-shadow: 0 0 0 2px #90caf955 !important;
+}
+body.dark-mode .alert {
+    background: #23272b !important;
+    color: #fff !important;
+    border-color: #90caf9 !important;
+    box-shadow: 0 2px 8px rgba(144,202,249,0.10) !important;
+}
+body.dark-mode .spinner-border {
+    border-color: #90caf9 #23272b #23272b #23272b !important;
+}
+body.dark-mode .marquee span {
+    color: #90caf9 !important;
+}
+body.dark-mode footer {
+    background: #181a1b !important;
+    color: #aaa !important;
+    border-top: 1px solid #23272b !important;
+}
+body.dark-mode .card-title,
+body.dark-mode .article-title,
+body.dark-mode .fw-bold,
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+    color: #90caf9 !important;
+}
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-danger:hover,
+body.dark-mode .btn-outline-success:hover,
+body.dark-mode .btn-outline-warning:hover {
+    background: #90caf9 !important;
+    color: #23272b !important;
+}
+
+/* Smooth transitions for all major elements */
+body, .container, .card, .news-section-bg, .personalise-card, .news-card, .banner-section, .rounded-4, .sticky-heading, .navbar, .modal-content, .form-control, .btn, .dropdown-menu, .table, input, textarea {
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+/* Dark mode icon animation */
+#darkModeIconImg {
+    transition: transform 0.3s, filter 0.3s;
+}
+#darkModeToggle:active #darkModeIconImg {
+    transform: rotate(180deg) scale(1.1);
+    filter: brightness(1.2);
+}
+#darkModeToggle:focus {
+    outline: 2px solid #90caf9;
+    box-shadow: 0 0 0 2px #90caf933;
+}
+#darkModeToggle[title]:hover:after {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #23272b;
+    color: #f1f1f1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    margin-left: 8px;
+    z-index: 10;
+}
+
+/* In dark mode, make news content text white (not headings) */
+body.dark-mode .card-text,
+body.dark-mode .article-content,
+body.dark-mode .news-card p,
+body.dark-mode .news-section-bg p,
+body.dark-mode .personalise-card p,
+body.dark-mode .banner-section p {
+    color: #fff !important;
+}

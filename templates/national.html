@@ -1,0 +1,117 @@
+<style>
+.sticky-heading {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: inherit;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+.sticky-heading.toi { background: #e0eafc; }
+.sticky-heading.n18 { background: #fceabb; }
+.sticky-heading.ht { background: #fbc2eb; }
+/* .national-bg background removed to allow dark mode to work */
+</style>
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-4 national-bg">
+    <h2 class="mb-4 fw-bold text-primary text-center">Top National News</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); height: 1000px; overflow-y: auto;" id="toi-news-col">
+                <h5 class="fw-bold text-primary mb-3 sticky-heading toi">Times of India</h5>
+                <div id="toi-news-list">
+                {% for post in post1 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="toi-loading" style="display:none;">
+                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); height: 1000px; overflow-y: auto;" id="n18-news-col">
+                <h5 class="fw-bold text-warning mb-3 sticky-heading n18">News18</h5>
+                <div id="n18-news-list">
+                {% for post in post2 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="n18-loading" style="display:none;">
+                    <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); height: 1000px; overflow-y: auto;" id="ht-news-col">
+                <h5 class="fw-bold text-danger mb-3 sticky-heading ht">Hindustan Times</h5>
+                <div id="ht-news-list">
+                {% for post in post3 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="ht-loading" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function setupNationalInfiniteScroll(colId, listId, loadingId, source) {
+    let page = 2;
+    let loading = false;
+    const col = document.getElementById(colId);
+    const list = document.getElementById(listId);
+    const loadingSpinner = document.getElementById(loadingId);
+    col.addEventListener('scroll', async function() {
+        if (loading) return;
+        if (col.scrollTop + col.clientHeight >= col.scrollHeight - 50) {
+            loading = true;
+            loadingSpinner.style.display = '';
+            const res = await fetch(`/api/news?type=national&page=${page}`);
+            const data = await res.json();
+            // Filter by source
+            let filtered = [];
+            if (source === 'toi') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('times of india') || n.link.includes('indiatimes'));
+            else if (source === 'n18') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('news18') || n.link.includes('news18'));
+            else if (source === 'ht') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('hindustan') || n.link.includes('hindustantimes'));
+            else filtered = data;
+            filtered.forEach(news => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3 shadow-sm';
+                card.innerHTML = `<div class=\"card-body\">
+                    <a class=\"article-title\" href=\"${news.link}\">${news.title}</a>
+                    <p class=\"card-text\">${news.summary}</p>
+                </div>`;
+                list.appendChild(card);
+            });
+            loadingSpinner.style.display = 'none';
+            if (filtered.length > 0) page++;
+            loading = false;
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setupNationalInfiniteScroll('toi-news-col', 'toi-news-list', 'toi-loading', 'toi');
+    setupNationalInfiniteScroll('n18-news-col', 'n18-news-list', 'n18-loading', 'n18');
+    setupNationalInfiniteScroll('ht-news-col', 'ht-news-list', 'ht-loading', 'ht');
+});
+</script>
+{% endblock content %}

@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="row align-items-start">
+<div class="col-md-4">
+    <div class="content-section ">
+        <h5> Papers Section</h5>
+         {% if papers %}
+            <table border="1">
+
+            <tr>
+                <th>Paper ID</th>
+                <th>Paper Name</th>
+                <th>Paper Type</th>
+            </tr>
+
+                {% for paper in papers %}
+            <tr>
+                <td>{{ paper[0] }}</td>
+                 <td>{{ paper[1] }}</td>
+                 <td>{{ paper[2] }}</td>
+            </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="content-section ">
+        <h5> Categories Section</h5>
+        {% if categories %}
+            <table border="1">
+            <tr>
+                <th>Category ID</th>
+                <th>Category Name</th>
+                <th>Category Link</th>
+                <th>Paper Id</th>
+            </tr>
+
+                {% for category in categories %}
+            <tr>
+                <td>{{ category[0] }}</td>
+                <td>{{ category[1] }}</td>
+                <td >{{ category[2] }}</td>
+                <td>{{ category[3] }}</td>
+            </tr>
+                {% endfor %}
+            </table>
+              {% endif %}
+
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="content-section ">
+        <h5> Update Password</h5>
+        {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category,message in messages %}
+        {% if category.startswith('updatepassword') %}
+        <div class="alert alert-{{ category.split('-')[1] }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn btn-danger" data-bs-dismiss="alert">Close</button>
+        </div>
+        {% endif %}
+        {% endfor%}
+        {% endif %}
+        {% endwith %}
+        <form method="post" action="updatepassword">
+            {{ updatepassword_form.hidden_tag() }}
+            <div class="form-group">
+                <label for="user_name">Username</label>
+                {{ updatepassword_form.user_name(class='form-control',placeholder='username') }}
+            </div>
+                 <div class="form-group">
+               <label for="pass_word">New Password</label>
+                {{ updatepassword_form.pass_word(class='form-control',placeholder='New password') }}
+
+            </div>
+
+              <div class="form-group">
+                 <label for="confirm_pass_word">Confirm New Password</label>
+                {{ updatepassword_form.confirm_pass_word(class='form-control',placeholder='confirm password') }}
+
+            </div>
+            <div class="form-group">
+                 {{ updatepassword_form.submit_password(class='btn btn-primary') }}
+            </div>
+
+
+
+        </form>
+
+    </div>
+    <div class="content-section ">
+
+        <h5> Add Papers</h5>
+        {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category,message in messages %}
+        {% if category.startswith('addpaper') %}
+        <div class="alert alert-{{ category.split('-')[1] }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn btn-danger" data-bs-dismiss="alert">Close</button>
+        </div>
+         {% endif  %}
+          {% endfor %}
+          {% endif  %}
+          {% endwith  %}
+        <form method="post" action="addpaper">
+            {{ addpaper.hidden_tag() }}
+            <div class="form-group">
+                <label for="paper_type">Paper Type</label>
+                {{ addpaper.paper_type(class='form-control',placeholder='Paper Type') }}
+            </div>
+             <div class="form-group">
+                <label for="paper_name">Paper Name</label>
+                {{ addpaper.paper_name(class='form-control',placeholder='Paper Name') }}
+            </div>
+             <div class="form-group">
+                {{ addpaper.submit_paper(class='btn btn-primary') }}
+            </div>
+        </form>
+    </div>
+
+    <div class="content-section ">
+        <h5> Add Categories</h5>
+         {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category,message in messages %}
+        {% if category.startswith('addcategories') %}
+        <div class="alert alert-{{ category.split('-')[1] }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn btn-danger" data-bs-dismiss="alert">Close</button>
+        </div>
+         {% endif  %}
+          {% endfor %}
+          {% endif  %}
+          {% endwith  %}
+        <form method="post" action="addcategory">
+            {{ addcategories.hidden_tag() }}
+            <div class="form-group">
+                <label for="paper_id">Select Paper</label>
+                <select name="paper_id" class="form-select">
+                    <option value="0">Select Paper</option>
+                    {% for paper in papers %}
+                    <option value="{{ paper[0] }}">{{ paper[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="category_name">Category Name</label>
+                {{ addcategories.category_name(class='form-control',placeholder='Category Name') }}
+            </div>
+              <div class="form-group">
+                <label for="category_link">Category Link</label>
+                {{ addcategories.category_link(class='form-control',placeholder='Category Link') }}
+            </div>
+              <div class="form-group">
+                {{ addcategories.submit_category(class='btn btn-primary') }}
+            </div>
+
+        </form>
+    </div>
+    </div>
+</div>
+
+{% endblock content %}

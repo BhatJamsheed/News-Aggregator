@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% set show_header = False %}
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-80">
+  <div class="col-md-6">
+    <div class="card shadow p-4">
+      <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename='download.jpeg') }}" alt="Logo" style="height: 60px; border-radius: 10px;">
+        <h2 class="mt-2 mb-4 text-primary">Sign Up</h2>
+      </div>
+      <form method="POST" action="/signup">
+        <div class="mb-3">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        </div>
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label">Confirm Password</label>
+          <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+        </div>
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-dark btn-lg">Sign Up</button>
+        </div>
+        <div class="text-center">
+          <a href="/userlogin" class="text-decoration-none">Already have an account? Login</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %} 

@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 opening-bg">
+  <div class="col-md-7">
+    <div class="card shadow-lg p-5 text-center" style="border-radius: 2rem;">
+      <img src="{{ url_for('static', filename='download.jpeg') }}" alt="Logo" style="height: 90px; border-radius: 16px; margin-bottom: 1.5rem;">
+      <h1 class="display-4 fw-bold mb-3 text-primary">THE NEWS WORLD</h1>
+      <p class="lead mb-4">Your gateway to the world's top news. Stay informed. Stay ahead.</p>
+      <div class="d-grid gap-3 col-8 mx-auto mt-4">
+        <a href="/userlogin" class="btn btn-success btn-lg">User Login</a>
+        <a href="/signup" class="btn btn-dark btn-lg">Sign Up</a>
+        <a href="/login" class="btn btn-outline-primary btn-lg">Admin Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %} 

@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-4 local-bg">
+    <h2 class="mb-4 fw-bold text-primary text-center">Top Local News</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); height: 1000px; overflow-y: auto;" id="gk-news-col">
+                <h5 class="fw-bold text-primary mb-3 sticky-heading">Greater Kashmir</h5>
+                <div id="gk-news-list">
+                {% for post in post1 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="gk-loading" style="display:none;">
+                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); height: 1000px; overflow-y: auto;" id="glk-news-col">
+                <h5 class="fw-bold text-warning mb-3 sticky-heading">Global Kashmir</h5>
+                <div id="glk-news-list">
+                {% for post in post2 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="glk-loading" style="display:none;">
+                    <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded-4" style="background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); height: 1000px; overflow-y: auto;" id="krd-news-col">
+                <h5 class="fw-bold text-danger mb-3 sticky-heading">Kashmir Reader</h5>
+                <div id="krd-news-list">
+                {% for post in post3 %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <a class="article-title" href="{{ post[2] }}">{{ post[0] }}</a>
+                        <p class="card-text">{{ post[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                <div class="text-center my-2" id="krd-loading" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function setupLocalInfiniteScroll(colId, listId, loadingId, source) {
+    let page = 2;
+    let loading = false;
+    const col = document.getElementById(colId);
+    const list = document.getElementById(listId);
+    const loadingSpinner = document.getElementById(loadingId);
+    col.addEventListener('scroll', async function() {
+        if (loading) return;
+        if (col.scrollTop + col.clientHeight >= col.scrollHeight - 50) {
+            loading = true;
+            loadingSpinner.style.display = '';
+            const res = await fetch(`/api/news?type=local&page=${page}`);
+            const data = await res.json();
+            // Filter by source
+            let filtered = [];
+            if (source === 'gk') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('greater kashmir') || n.link.includes('greaterkashmir'));
+            else if (source === 'glk') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('global kashmir') || n.link.includes('globalkashmir'));
+            else if (source === 'krd') filtered = data.filter(n => n.title && n.title.toLowerCase().includes('kashmir reader') || n.link.includes('kashmirreader'));
+            else filtered = data;
+            filtered.forEach(news => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3 shadow-sm';
+                card.innerHTML = `<div class=\"card-body\">
+                    <a class=\"article-title\" href=\"${news.link}\">${news.title}</a>
+                    <p class=\"card-text\">${news.summary}</p>
+                </div>`;
+                list.appendChild(card);
+            });
+            loadingSpinner.style.display = 'none';
+            if (filtered.length > 0) page++;
+            loading = false;
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setupLocalInfiniteScroll('gk-news-col', 'gk-news-list', 'gk-loading', 'gk');
+    setupLocalInfiniteScroll('glk-news-col', 'glk-news-list', 'glk-loading', 'glk');
+    setupLocalInfiniteScroll('krd-news-col', 'krd-news-list', 'krd-loading', 'krd');
+});
+</script>
+<style>
+.sticky-heading {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: inherit;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+/* .local-bg background removed to allow dark mode to work */
+</style>
+{% endblock content %}

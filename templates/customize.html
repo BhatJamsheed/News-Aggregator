@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* .customize-bg background removed to allow dark mode to work */
+    .personalise-card {
+        background: rgba(255,255,255,0.95);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        border-radius: 18px;
+    }
+    .user-pref {
+        background: #f1f8ff;
+        border-left: 4px solid #0d6efd;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+    .infinite-scroll-section {
+        background: rgba(255,255,255,0.97);
+        border-radius: 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        padding: 1.5rem 1rem;
+        margin-bottom: 2rem;
+        max-height: 420px;
+        overflow-y: auto;
+    }
+    .news-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        margin-bottom: 1.2rem;
+        background: #f8fafd;
+        padding: 1rem 1.2rem;
+        position: relative;
+    }
+    .news-date {
+        font-size: 0.95rem;
+        color: #888;
+        position: absolute;
+        top: 1rem;
+        right: 1.2rem;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('customize-bg');
+        // Infinite scroll for personalized news
+        let loading = false;
+        let lastTimestamp = null;
+        const newsSection = document.getElementById('personalized-news-section');
+        const newsList = document.getElementById('personalized-news-list');
+        const loadingSpinner = document.getElementById('personalized-loading');
+        if (newsSection) {
+            newsSection.addEventListener('scroll', async function() {
+                if (loading) return;
+                if (newsSection.scrollTop + newsSection.clientHeight >= newsSection.scrollHeight - 50) {
+                    loading = true;
+                    loadingSpinner.style.display = '';
+                    let url = '/api/customized_news';
+                    if (lastTimestamp) {
+                        url += `?last_timestamp=${encodeURIComponent(lastTimestamp)}`;
+                    }
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    data.forEach(news => {
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        card.innerHTML = `<div class='news-date'>${news.timestamp ? news.timestamp : ''}</div>
+                            <h5 class='mb-2'>${news.title}</h5>
+                            <p>${news.summary || ''}</p>
+                            <a href='${news.link}' target='_blank' class='btn btn-outline-primary btn-sm'>Read More</a>`;
+                        newsList.appendChild(card);
+                    });
+                    if (data.length > 0) {
+                        lastTimestamp = data[data.length - 1].timestamp;
+                        loading = false;
+                    } else {
+                        loading = true; // No more data
+                    }
+                    loadingSpinner.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+<div class="customize-bg">
+    <div class="container">
+        <div class="row justify-content-center align-items-start">
+            <div class="col-md-8">
+                <h2 class="text-center mb-4 mt-3 fw-bold text-primary">Personalise your news</h2>
+                {% if user_pref %}
+                <div class="user-pref">
+                    <strong>Your current preferences:</strong><br>
+                    Continent: <span class="text-primary">{{ user_pref.continent }}</span> |
+                    News Type: <span class="text-success">{{ user_pref.news_type }}</span> |
+                    Date: <span class="text-danger">{{ user_pref.date }}</span>
+                </div>
+                {% endif %}
+                <div class="personalise-card p-4 mb-4">
+                <!-- Personalization Form -->
+                <form method="POST" class="row g-3 align-items-end justify-content-center">
+                    <div class="col-md-4">
+                        <label for="continent" class="form-label">Continent</label>
+                        <select class="form-select" id="continent" name="continent" required>
+                            <option value="">Select Continent</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Antarctica">Antarctica</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" max="{{ today }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="news_type" class="form-label">News Type</label>
+                        <select class="form-select" id="news_type" name="news_type" required>
+                            <option value="">Select News Type</option>
+                            <option value="stockmarket">Stock Market</option>
+                            <option value="crypto">Crypto</option>
+                            <option value="politics">Politics</option>
+                            <option value="war">War</option>
+                            <option value="oil_prices">Oil Prices</option>
+                            <option value="trades">Trades</option>
+                            <option value="defence_deals">Defence Deals</option>
+                            <option value="internal_relations">Internal Relations</option>
+                            <option value="social_media">Social Media News</option>
+                            <option value="ai">AI Related News</option>
+                            <option value="computer_science">Computer Science News</option>
+                            <option value="research">Research News</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Show News</button>
+                    </div>
+                </form>
+                <!-- End Personalization Form -->
+                </div>
+                <!-- Infinite Scroll Section for Personalized News -->
+                <div class="infinite-scroll-section mt-4" id="personalized-news-section">
+                    <div id="personalized-news-list">
+                    {% if posts|length == 0 %}
+                        <div class="alert alert-warning text-center my-4" style="border-radius: 12px;">
+                            <strong>Oops!</strong> No news available on the topic you chose on the particular day
+                            {% if user_pref and user_pref.date %}
+                                ({{ user_pref.date }})
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if fallback %}
+                    <div class="alert alert-info text-center my-4" style="border-radius: 12px;">
+                        <strong>Note:</strong> No news was found for the selected day. Showing news from other days instead.
+                    </div>
+                    {% endif %}
+                    {% for post in posts %}
+                        <div class="news-card">
+                            <div class="news-date">
+                                {% if post[3] %}{{ post[3].strftime('%Y-%m-%d %H:%M') }}{% endif %}
+                            </div>
+                            <h5 class="mb-2">{{ post[0] }}</h5>
+                            <p>{{ post[1] }}</p>
+                            <a href="{{ post[2] }}" target="_blank" class="btn btn-outline-primary btn-sm">Read More</a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    <div class="text-center my-2" id="personalized-loading" style="display:none;">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+
+

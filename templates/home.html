@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* .home-bg background removed to allow dark mode to work */
+    .news-section-bg {
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        padding: 1.5rem 1rem;
+        height: 70vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    .news-section-bg.financial {
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    }
+    .news-section-bg.political {
+        background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+    }
+    .news-section-bg.trending {
+        background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    }
+    .banner-section {
+        background: linear-gradient(90deg, #0d6efd 0%, #6a82fb 100%);
+        color: #fff;
+        border-radius: 18px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 2px 16px rgba(13,110,253,0.08);
+        overflow: hidden;
+        position: relative;
+    }
+    .marquee {
+        white-space: nowrap;
+        overflow: hidden;
+        width: 100%;
+        display: block;
+    }
+    .marquee span {
+        display: inline-block;
+        padding-left: 100%;
+        animation: marquee 36s linear infinite;
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+    }
+    @media (max-width: 991px) {
+        .news-section-bg { height: auto; min-height: 300px; }
+    }
+    .sticky-heading {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    .sticky-heading.financial { background: #e0eafc; }
+    .sticky-heading.political { background: #fceabb; }
+    .sticky-heading.trending { background: #fbc2eb; }
+</style>
+<div class="container py-4 home-bg">
+    <!-- Notification Simulation Button -->
+    <div class="mb-4 text-end">
+        <button id="notify-btn" class="btn btn-warning btn-lg">Simulate Important News Notification</button>
+    </div>
+    <!-- Banner Section with Marquee -->
+    <div class="banner-section mb-5">
+        <div class="d-flex align-items-center">
+            <span class="me-3 fw-bold"><i class="bi bi-lightning-charge-fill"></i> Top Trending:</span>
+            <div class="marquee">
+                <span>
+                    {% for news in trending_news %}{{ news.title }} &nbsp;&nbsp;|&nbsp;&nbsp;{% endfor %}
+                </span>
+            </div>
+        </div>
+    </div>
+    <h1 class="fw-bold text-center mb-5">Welcome to News World</h1>
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="news-section-bg financial" id="financial-news-col">
+                <h3 class="mb-4 text-primary text-center sticky-heading financial">Financial News</h3>
+                <div id="financial-news-list">
+                    {% for news in financial_news %}
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text">{{ news.summary }}</p>
+                            <a href="{{ news.link }}" class="btn btn-outline-primary btn-sm">Read More</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center my-2" id="financial-loading" style="display:none;">
+                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="news-section-bg political" id="political-news-col">
+                <h3 class="mb-4 text-success text-center sticky-heading political">Political News</h3>
+                <div id="political-news-list">
+                    {% for news in political_news %}
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text">{{ news.summary }}</p>
+                            <a href="{{ news.link }}" class="btn btn-outline-success btn-sm">Read More</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center my-2" id="political-loading" style="display:none;">
+                    <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12">
+            <div class="news-section-bg trending" id="trending-news-col">
+                <h3 class="mb-4 text-danger text-center sticky-heading trending">Top Trending News</h3>
+                <div id="trending-news-list">
+                    {% for news in trending_news %}
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ news.title }}</h5>
+                            <p class="card-text">{{ news.summary }}</p>
+                            <a href="{{ news.link }}" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center my-2" id="trending-loading" style="display:none;">
+                    <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function setupInfiniteScroll(colId, listId, loadingId, newsType) {
+    let page = 2;
+    let loading = false;
+    const col = document.getElementById(colId);
+    const list = document.getElementById(listId);
+    const loadingSpinner = document.getElementById(loadingId);
+    col.addEventListener('scroll', async function() {
+        if (loading) return;
+        if (col.scrollTop + col.clientHeight >= col.scrollHeight - 50) {
+            loading = true;
+            loadingSpinner.style.display = '';
+            const res = await fetch(`/api/news?type=${newsType}&page=${page}`);
+            const data = await res.json();
+            data.forEach(news => {
+                const card = document.createElement('div');
+                card.className = 'card shadow-sm';
+                card.innerHTML = `<div class="card-body">
+                    <h5 class="card-title">${news.title}</h5>
+                    <p class="card-text">${news.summary}</p>
+                    <a href="${news.link}" class="btn btn-outline-${newsType === 'financial' ? 'primary' : newsType === 'political' ? 'success' : 'danger'} btn-sm">Read More</a>
+                </div>`;
+                list.appendChild(card);
+            });
+            loadingSpinner.style.display = 'none';
+            if (data.length > 0) page++;
+            loading = false;
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setupInfiniteScroll('financial-news-col', 'financial-news-list', 'financial-loading', 'financial');
+    setupInfiniteScroll('political-news-col', 'political-news-list', 'political-loading', 'political');
+    setupInfiniteScroll('trending-news-col', 'trending-news-list', 'trending-loading', 'trending');
+});
+
+document.getElementById('notify-btn').addEventListener('click', function() {
+    fetch('/send-test-notification', {method: 'POST'})
+      .then(res => res.json())
+      .then(data => {
+        alert('Notification sent! Check your browser notification area.');
+      })
+      .catch(() => alert('Failed to send notification.'));
+});
+</script>
+{% endblock content %}

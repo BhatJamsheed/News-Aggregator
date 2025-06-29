@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% set show_header = False %}
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-80">
+  <div class="col-md-5">
+    <div class="card shadow p-4">
+      <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename='download.jpeg') }}" alt="Logo" style="height: 60px; border-radius: 10px;">
+        <h2 class="mt-2 mb-4 text-primary">User Login</h2>
+      </div>
+      <form method="POST" action="/userlogin">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        </div>
+        <div class="d-grid mb-2">
+          <button type="submit" class="btn btn-success btn-lg">Login</button>
+        </div>
+        <div class="text-center">
+          <a href="/signup" class="text-decoration-none">Don't have an account? Sign up</a><br>
+          <a href="/resetpassword" class="text-decoration-none">Forgot password?</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %} 
