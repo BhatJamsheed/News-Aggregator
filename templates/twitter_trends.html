@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">Twitter Trending</h2>
+    <div id="twitter-trends-list">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="trends-cards-container">
+            {% for trend in trends[:6] %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ trend.name }}</h5>
+                        {% if trend.url %}
+                        <a href="{{ trend.url }}" class="btn btn-outline-primary btn-sm" target="_blank">View on Twitter</a>
+                        {% endif %}
+                        {% if trend.tweet_volume %}
+                        <p class="card-text mt-2 text-muted">Tweets: {{ trend.tweet_volume }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center my-2" id="trends-loading" style="display:none;">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+        <div id="trends-sentinel"></div>
+        <div class="text-center my-2 text-muted" id="trends-end" style="display:none;">No more trends to show.</div>
+    </div>
+</div>
+<script>
+let page = 2;
+let loading = false;
+let noMoreData = false;
+const container = document.getElementById('trends-cards-container');
+const loadingSpinner = document.getElementById('trends-loading');
+const sentinel = document.getElementById('trends-sentinel');
+const endMsg = document.getElementById('trends-end');
+
+async function loadMoreTrends() {
+    if (loading || noMoreData) return;
+    loading = true;
+    loadingSpinner.style.display = '';
+    try {
+        const res = await fetch(`/api/twitter-trends?page=${page}&page_size=6`);
+        const data = await res.json();
+        if (data.length === 0) {
+            noMoreData = true;
+            endMsg.style.display = '';
+            observer.disconnect();
+        } else {
+            data.forEach(trend => {
+                const col = document.createElement('div');
+                col.className = 'col';
+                col.innerHTML = `<div class='card h-100 shadow-sm'><div class='card-body'><h5 class='card-title'>${trend.name}</h5>${trend.url ? `<a href='${trend.url}' class='btn btn-outline-primary btn-sm' target='_blank'>View on Twitter</a>` : ''}</div></div>`;
+                container.appendChild(col);
+            });
+            page++;
+        }
+    } catch (e) {
+        // Optionally show error
+    }
+    loadingSpinner.style.display = 'none';
+    loading = false;
+}
+
+const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+        loadMoreTrends();
+    }
+}, {
+    root: null,
+    rootMargin: '0px',
+    threshold: 1.0
+});
+observer.observe(sentinel);
+</script>
+{% endblock content %} 

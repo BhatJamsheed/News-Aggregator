@@ -144,15 +144,12 @@
                     <div id="personalized-news-list">
                     {% if posts|length == 0 %}
                         <div class="alert alert-warning text-center my-4" style="border-radius: 12px;">
-                            <strong>Oops!</strong> No news available on the topic you chose on the particular day
-                            {% if user_pref and user_pref.date %}
-                                ({{ user_pref.date }})
-                            {% endif %}
+                            <strong>Oops!</strong> No news found for your selection. Showing the most recent news instead.
                         </div>
                     {% endif %}
                     {% if fallback %}
                     <div class="alert alert-info text-center my-4" style="border-radius: 12px;">
-                        <strong>Note:</strong> No news was found for the selected day. Showing news from other days instead.
+                        <strong>Note:</strong> No news was found for the exact filters you selected. Here are some recent articles you might like.
                     </div>
                     {% endif %}
                     {% for post in posts %}

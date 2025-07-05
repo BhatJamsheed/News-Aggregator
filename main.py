@@ -16,6 +16,8 @@ from pywebpush import webpush, WebPushException
 import json
 import math
 import os
+import requests
+from bs4 import BeautifulSoup
 
 from apscheduler.schedulers.background import BackgroundScheduler
 update_news()
@@ -266,7 +268,7 @@ def add_category():
 
 
 
-@app.route('/customize',methods=['GET','POST'])
+@app.route('/customize', methods=['GET', 'POST'])
 @login_required
 def customize():
     user_email = session.get('user')
@@ -274,6 +276,7 @@ def customize():
     user_pref = user.get('preferences', {}) if user else {}
     posts = []
     fallback = False
+
     if request.method == 'POST':
         continent = request.form.get('continent')
         news_type = request.form.get('news_type')
@@ -285,29 +288,42 @@ def customize():
             'date': date_str
         }}})
         user_pref = {'continent': continent, 'news_type': news_type, 'date': date_str}
+
     # Use preferences to filter news
-    if user_pref:
-        query = {}
-        if user_pref.get('news_type'):
-            query['category'] = user_pref['news_type']
-        if user_pref.get('date'):
-            try:
-                day = datetime.strptime(user_pref['date'], '%Y-%m-%d')
-                start = day.replace(hour=0, minute=0, second=0, microsecond=0)
-                end = day.replace(hour=23, minute=59, second=59, microsecond=999999)
-                query['timestamp'] = {'$gte': start, '$lte': end}
-            except Exception:
-                pass
-        if user_pref.get('continent'):
-            query['continent'] = user_pref['continent']
+    query = {}
+    if user_pref.get('news_type'):
+        query['category'] = user_pref['news_type']
+    if user_pref.get('date'):
+        try:
+            day = datetime.strptime(user_pref['date'], '%Y-%m-%d')
+            start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+            end = day.replace(hour=23, minute=59, second=59, microsecond=999999)
+            query['timestamp'] = {'$gte': start, '$lte': end}
+        except Exception:
+            pass
+    if user_pref.get('continent'):
+        query['continent'] = user_pref['continent']
+
+    news_cursor = mongo.db.news.find(query).sort('timestamp', -1).limit(8)
+    posts = [[n.get('title'), n.get('summary'), n.get('link'), n.get('timestamp')] for n in news_cursor]
+
+    # Fallback: If no news found, relax the query
+    if not posts:
+        fallback = True
+        # Try without date
+        query.pop('timestamp', None)
         news_cursor = mongo.db.news.find(query).sort('timestamp', -1).limit(8)
         posts = [[n.get('title'), n.get('summary'), n.get('link'), n.get('timestamp')] for n in news_cursor]
-        # If no news found for the day, try without the date filter
-        if not posts and user_pref.get('date'):
-            fallback = True
-            query.pop('timestamp', None)
-            news_cursor = mongo.db.news.find(query).sort('timestamp', -1).limit(8)
-            posts = [[n.get('title'), n.get('summary'), n.get('link'), n.get('timestamp')] for n in news_cursor]
+    if not posts:
+        # Try without topic/category
+        query.pop('category', None)
+        news_cursor = mongo.db.news.find(query).sort('timestamp', -1).limit(8)
+        posts = [[n.get('title'), n.get('summary'), n.get('link'), n.get('timestamp')] for n in news_cursor]
+    if not posts:
+        # Show most recent news as last resort
+        news_cursor = mongo.db.news.find({}).sort('timestamp', -1).limit(8)
+        posts = [[n.get('title'), n.get('summary'), n.get('link'), n.get('timestamp')] for n in news_cursor]
+
     return render_template('customize.html', title="Customized News", posts=posts, today=date.today(), user_pref=user_pref, fallback=fallback)
 
 
@@ -1181,6 +1197,51 @@ def sw():
 @app.route('/vapid-public-key')
 def vapid_public_key():
     return PUBLIC_VAPID_KEY
+
+def scrape_trends24_india(page=1, page_size=6):
+    url = 'https://trends24.in/india/'
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            print(f"Failed to fetch trends24.in/india: {response.status_code}")
+            return []
+        soup = BeautifulSoup(response.text, 'html.parser')
+        trends = []
+        trend_list = soup.find('ol', class_='trend-card__list')
+        if not trend_list:
+            print("No trend list found on trends24.in/india")
+            return []
+        for li in trend_list.find_all('li'):
+            a = li.find('a')
+            if a:
+                trends.append({
+                    'name': a.get_text(strip=True),
+                    'url': a['href'] if a.has_attr('href') else None,
+                    'tweet_volume': None
+                })
+        # Pagination
+        start = (page - 1) * page_size
+        end = start + page_size
+        return trends[start:end]
+    except Exception as e:
+        print(f"Error scraping trends24.in/india: {e}")
+        return []
+
+@app.route('/api/twitter-trends')
+def api_twitter_trends():
+    try:
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 6))
+    except Exception:
+        page, page_size = 1, 6
+    trends = scrape_trends24_india(page, page_size)
+    return jsonify(trends)
+
+@app.route('/twitter-trending')
+@login_required
+def twitter_trending():
+    trends = scrape_trends24_india(page=1, page_size=6)
+    return render_template('twitter_trends.html', trends=trends)
 
 if __name__ == '__main__':
     app.run(debug=False, port=5033, host='0.0.0.0')
